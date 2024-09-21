@@ -41,7 +41,7 @@ jobs:
 
     - name: Build and push Docker image
       run: |
-        IMAGE=gcr.io/${{ secrets.GCP_PROJECT_ID }}/gostarted:$GITHUB_SHA  # Image name with SHA tag
+        IMAGE=gcr.io/${{ secrets.GCP_PROJECT_ID }}/gostarted:$GITHUB_SHA
         docker build -t $IMAGE .
         docker push $IMAGE
 
@@ -49,6 +49,7 @@ jobs:
       run: |
         gcloud run deploy gostarted \
           --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/gostarted:$GITHUB_SHA \
-          --region us-central1 \  # Adjust this to your desired region
+          --region us-central1 \
           --platform managed \
           --allow-unauthenticated
+
