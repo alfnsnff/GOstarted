@@ -33,7 +33,7 @@ jobs:
       uses: google-github-actions/auth@v2.1.3
       with:
         # project_id: 'silang-c241-ps520'  # Set your GCP project ID in GitHub secrets
-        credentials_json:: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}  # Set the service account JSON key in GitHub secrets
+        credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}  # Set the service account JSON key in GitHub secrets
 
     - name: Authenticate Docker with Google Cloud
       run: |
