@@ -1,0 +1,55 @@
+name: Go CI/CD
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.23.1
+    - name: Build
+      run: go build ./...
+    - name: Test
+      run: go test ./...
+
+  deploy:
+    needs: build  # Ensure the build job completes successfully before deploying
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        version: 'latest'
+        project_id: ${{ secrets.GCP_PROJECT_ID }}  # Set your GCP project ID in GitHub secrets
+        service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}  # Set the service account JSON key in GitHub secrets
+
+    - name: Authenticate Docker with Google Cloud
+      run: |
+        gcloud auth configure-docker
+
+    - name: Build and push Docker image
+      run: |
+        IMAGE=gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-go-app:$GITHUB_SHA  # Image name with SHA tag
+        docker build -t $IMAGE .
+        docker push $IMAGE
+
+    - name: Deploy to Cloud Run
+      run: |
+        gcloud run deploy my-go-app \
+          --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-go-app:$GITHUB_SHA \
+          --region us-central1 \  # Adjust this to your desired region
+          --platform managed \
+          --allow-unauthenticated
