@@ -9,7 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up Go
@@ -22,22 +21,18 @@ jobs:
       run: go test ./...
 
   deploy:
-    needs: build  # Ensure the build job completes successfully before deploying
+    needs: build
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
     - name: Set up Google Cloud SDK
-      uses: google-github-actions/auth@v2.1.3
+      uses: google-github-actions/auth@v2
       with:
-        # project_id: 'silang-c241-ps520'  # Set your GCP project ID in GitHub secrets
-        credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}  # Set the service account JSON key in GitHub secrets
+        credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
-    - name: Authenticate Docker with Google Cloud
-      run: |
-        gcloud auth configure-docker
+    - name: Configure Docker authentication
+      run: gcloud auth configure-docker
 
     - name: Build and push Docker image
       run: |
@@ -49,7 +44,14 @@ jobs:
       run: |
         gcloud run deploy gostarted \
           --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/gostarted:$GITHUB_SHA \
-          --region us-central1 \
           --platform managed \
-          --allow-unauthenticated
-
+          --allow-unauthenticated \
+          --region us-central1 \
+          --add-cloudsql-instances ${{ secrets.INSTANCE_CONNECTION_NAME }} \
+          --set-env-vars DB_HOST=${{ secrets.DB_HOST }} \
+          --set-env-vars DB_USER=${{ secrets.DB_USER }} \
+          --set-env-vars DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+          --set-env-vars DB_NAME=${{ secrets.DB_NAME }} \
+          --set-env-vars DB_PORT=5432
+          --set-env-vars DB_SSLMODE=disable
+          --set-env-vars DB_SOCKET_DIR=/cloudsql
