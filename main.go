@@ -3,14 +3,14 @@ package main
 import (
     "github.com/labstack/echo/v4"
     "GOstarted/database"
-	// "GOstarted/seeds"
+	"GOstarted/seeds"
 	"GOstarted/routes"
 )
 
 func main() {
     
     database.Connect()
-    // seeds.SeedShips()
+    seeds.SeedShips()
 
     e := echo.New()
 	routes.SetupRoutes(e)
