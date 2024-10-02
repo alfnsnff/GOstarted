@@ -26,9 +26,6 @@ vendor/
 *.log
 *.gz
 
-# Environment variables and config files
-.env
-
 # macOS specific files
 .DS_Store
 
