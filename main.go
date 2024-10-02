@@ -3,7 +3,7 @@ package main
 import (
     "github.com/labstack/echo/v4"
     "GOstarted/database"
-	"GOstarted/seeds"
+	// "GOstarted/seeds"
 	"GOstarted/routes"
 )
 
