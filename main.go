@@ -10,7 +10,7 @@ import (
 func main() {
     
     database.Connect()
-    seeds.SeedShips()
+    // seeds.SeedShips()
 
     e := echo.New()
 	routes.SetupRoutes(e)
