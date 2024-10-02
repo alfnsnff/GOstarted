@@ -7,44 +7,58 @@ import (
     "GOstarted/database"
 )
 
-// GetTickets retrieves all tickets
+// Get all tickets
 func GetTickets(c echo.Context) error {
     var tickets []models.Ticket
-    if err := database.DB.Preload("Ship").Find(&tickets).Error; err != nil {
-        return c.JSON(http.StatusInternalServerError, err.Error())
+    if result := database.DB.Preload("Ship").Preload("Pathway").Preload("TicketClass").Find(&tickets); result.Error != nil {
+        return c.JSON(http.StatusInternalServerError, result.Error)
     }
     return c.JSON(http.StatusOK, tickets)
 }
 
-// CreateTicket adds a new ticket
+// Create a ticket
 func CreateTicket(c echo.Context) error {
-    ticket := models.Ticket{}
-    if err := c.Bind(&ticket); err != nil {
+    ticket := new(models.Ticket)
+    if err := c.Bind(ticket); err != nil {
         return c.JSON(http.StatusBadRequest, err.Error())
     }
-    database.DB.Create(&ticket)
+    if result := database.DB.Create(ticket); result.Error != nil {
+        return c.JSON(http.StatusInternalServerError, result.Error)
+    }
     return c.JSON(http.StatusCreated, ticket)
 }
 
-// UpdateTicket modifies an existing ticket by ID
-func UpdateTicket(c echo.Context) error {
+// Get a specific ticket by ID
+func GetTicket(c echo.Context) error {
     id := c.Param("id")
     var ticket models.Ticket
-    if err := database.DB.First(&ticket, id).Error; err != nil {
-        return c.JSON(http.StatusNotFound, err.Error())
+    if result := database.DB.Preload("Ship").Preload("Route").Preload("TicketClass").First(&ticket, id); result.Error != nil {
+        return c.JSON(http.StatusNotFound, result.Error)
     }
-    if err := c.Bind(&ticket); err != nil {
-        return c.JSON(http.StatusBadRequest, err.Error())
-    }
-    database.DB.Save(&ticket)
     return c.JSON(http.StatusOK, ticket)
 }
 
-// DeleteTicket removes a ticket by ID
+// Update a ticket
+func UpdateTicket(c echo.Context) error {
+    id := c.Param("id")
+    var ticket models.Ticket
+    if result := database.DB.First(&ticket, id); result.Error != nil {
+        return c.JSON(http.StatusNotFound, result.Error)
+    }
+    if err := c.Bind(&ticket); err != nil {
+        return c.JSON(http.StatusBadRequest, err.Error)
+    }
+    if result := database.DB.Save(&ticket); result.Error != nil {
+        return c.JSON(http.StatusInternalServerError, result.Error)
+    }
+    return c.JSON(http.StatusOK, ticket)
+}
+
+// Delete a ticket
 func DeleteTicket(c echo.Context) error {
     id := c.Param("id")
-    if err := database.DB.Delete(&models.Ticket{}, id).Error; err != nil {
-        return c.JSON(http.StatusNotFound, err.Error())
+    if result := database.DB.Delete(&models.Ticket{}, id); result.Error != nil {
+        return c.JSON(http.StatusInternalServerError, result.Error)
     }
     return c.NoContent(http.StatusNoContent)
 }

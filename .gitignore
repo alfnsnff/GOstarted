@@ -1,0 +1,52 @@
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Output of the `go` command
+bin/
+build/
+*.out
+
+# Go specific files
+*.test
+*.log
+*.prof
+
+# Dependency directories (for Go modules)
+vendor/
+
+# IDE specific files
+.vscode/
+.idea/
+*.swp
+
+# Log files
+*.log
+*.gz
+
+# Environment variables and config files
+.env
+
+# macOS specific files
+.DS_Store
+
+# PostgreSQL dump files (if any)
+*.sql
+
+# Gorm generated migration files
+migrations/
+
+# Database and backup files
+*.db
+*.sqlite3
+
+# Ignore compiled shared objects
+*.so
+
+# Ignore generated code
+gen/
+
+# Ignore the 'node_modules' folder if you're working with front-end in the same project
+node_modules/

@@ -7,44 +7,58 @@ import (
     "GOstarted/database"
 )
 
-// GetHarbors retrieves all harbors
+// Get all harbors
 func GetHarbors(c echo.Context) error {
     var harbors []models.Harbor
-    if err := database.DB.Find(&harbors).Error; err != nil {
-        return c.JSON(http.StatusInternalServerError, err.Error())
+    if result := database.DB.Find(&harbors); result.Error != nil {
+        return c.JSON(http.StatusInternalServerError, result.Error)
     }
     return c.JSON(http.StatusOK, harbors)
 }
 
-// CreateHarbor adds a new harbor
+// Create a harbor
 func CreateHarbor(c echo.Context) error {
-    harbor := models.Harbor{}
-    if err := c.Bind(&harbor); err != nil {
+    harbor := new(models.Harbor)
+    if err := c.Bind(harbor); err != nil {
         return c.JSON(http.StatusBadRequest, err.Error())
     }
-    database.DB.Create(&harbor)
+    if result := database.DB.Create(harbor); result.Error != nil {
+        return c.JSON(http.StatusInternalServerError, result.Error)
+    }
     return c.JSON(http.StatusCreated, harbor)
 }
 
-// UpdateHarbor modifies an existing harbor by ID
+// Get a specific harbor by ID
+func GetHarbor(c echo.Context) error {
+    id := c.Param("id")
+    var harbor models.Harbor
+    if result := database.DB.First(&harbor, id); result.Error != nil {
+        return c.JSON(http.StatusNotFound, result.Error)
+    }
+    return c.JSON(http.StatusOK, harbor)
+}
+
+// Update a harbor
 func UpdateHarbor(c echo.Context) error {
     id := c.Param("id")
     var harbor models.Harbor
-    if err := database.DB.First(&harbor, id).Error; err != nil {
-        return c.JSON(http.StatusNotFound, err.Error())
+    if result := database.DB.First(&harbor, id); result.Error != nil {
+        return c.JSON(http.StatusNotFound, result.Error)
     }
     if err := c.Bind(&harbor); err != nil {
         return c.JSON(http.StatusBadRequest, err.Error())
     }
-    database.DB.Save(&harbor)
+    if result := database.DB.Save(&harbor); result.Error != nil {
+        return c.JSON(http.StatusInternalServerError, result.Error)
+    }
     return c.JSON(http.StatusOK, harbor)
 }
 
-// DeleteHarbor removes a harbor by ID
+// Delete a harbor
 func DeleteHarbor(c echo.Context) error {
     id := c.Param("id")
-    if err := database.DB.Delete(&models.Harbor{}, id).Error; err != nil {
-        return c.JSON(http.StatusNotFound, err.Error())
+    if result := database.DB.Delete(&models.Harbor{}, id); result.Error != nil {
+        return c.JSON(http.StatusInternalServerError, result.Error)
     }
     return c.NoContent(http.StatusNoContent)
 }
