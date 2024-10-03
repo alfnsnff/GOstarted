@@ -22,19 +22,20 @@ func Connect() {
 		log.Fatal("Error loading .env file")
 	}
 
-	// Get environment variables
-	host := os.Getenv("DB_HOST")
-	user := os.Getenv("DB_USER")
-	password := os.Getenv("DB_PASSWORD")
-	dbname := os.Getenv("DB_NAME")
-	sslmode := os.Getenv("DB_SSLMODE")
+	// Local development using localhost PostgreSQL
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s dbport=%s sslmode=%s", 
+		os.Getenv("DB_HOST"), 
+		os.Getenv("DB_USER"), 
+		os.Getenv("DB_PASSWORD"), 
+		os.Getenv("DB_NAME"),
+		os.Getenv("DB_PORT"), 
+		os.Getenv("DB_SSLMODE"))
 
-	// Construct the DSN
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=%s", host, user, password, dbname, port, sslmode)
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic("failed to connect database")
+		log.Fatalf("failed to connect to database: %v", err)
 	}
+
 
 	// Automatically migrate the schema for the Well model
 	err = DB.AutoMigrate(&models.Ship{}, &models.Harbor{}, &models.User{}, &models.Ticket{}, &models.TicketClass{}, &models.Pathway{})

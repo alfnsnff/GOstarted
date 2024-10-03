@@ -7,20 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.23.1
-    - name: Build
-      run: go build ./...
-    - name: Test
-      run: go test ./...
-
-  deploy:
+  build-and-deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -47,3 +34,6 @@ jobs:
           --platform managed \
           --allow-unauthenticated \
           --region us-central1 \
+          --add-cloudsql-instances ${{ secrets.INSTANCE_UNIX_SOCKET }} \
+          --set-env-vars DB_USER=${{ secrets.DB_USER }},DB_PASSWORD=${{ secrets.DB_PASSWORD }},DB_NAME=${{ secrets.DB_NAME }},DB_HOST=${{ secrets.INSTANCE_UNIX_SOCKET }} \
+          --allow-unauthenticated
