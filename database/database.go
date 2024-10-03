@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"gorm.io/gorm"
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"GOstarted/models"
 )
