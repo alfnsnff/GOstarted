@@ -23,12 +23,11 @@ func Connect() {
 	}
 
 	// Local development using localhost PostgreSQL
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s dbport=%s sslmode=%s", 
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=%s", 
 		os.Getenv("DB_HOST"), 
 		os.Getenv("DB_USER"), 
 		os.Getenv("DB_PASSWORD"), 
-		os.Getenv("DB_NAME"),
-		os.Getenv("DB_PORT"), 
+		os.Getenv("DB_NAME"), 
 		os.Getenv("DB_SSLMODE"))
 
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
