@@ -2,63 +2,71 @@ package handlers
 
 import (
     "net/http"
-    "github.com/labstack/echo/v4"
+    "github.com/gin-gonic/gin"
     "GOstarted/models"
     "GOstarted/database"
 )
 
 // Get all ships
-func GetShips(c echo.Context) error {
+func GetShips(c *gin.Context) {
     var ships []models.Ship
     if result := database.DB.Find(&ships); result.Error != nil {
-        return c.JSON(http.StatusInternalServerError, result.Error)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+        return
     }
-    return c.JSON(http.StatusOK, ships)
+    c.JSON(http.StatusOK, ships)
 }
 
 // Create a ship
-func CreateShip(c echo.Context) error {
+func CreateShip(c *gin.Context) {
     ship := new(models.Ship)
-    if err := c.Bind(ship); err != nil {
-        return c.JSON(http.StatusBadRequest, err.Error())
+    if err := c.ShouldBindJSON(ship); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
     }
     if result := database.DB.Create(ship); result.Error != nil {
-        return c.JSON(http.StatusInternalServerError, result.Error)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+        return
     }
-    return c.JSON(http.StatusCreated, ship)
+    c.JSON(http.StatusCreated, ship)
 }
 
 // Get a specific ship by ID
-func GetShip(c echo.Context) error {
+func GetShip(c *gin.Context) {
     id := c.Param("id")
     var ship models.Ship
     if result := database.DB.First(&ship, id); result.Error != nil {
-        return c.JSON(http.StatusNotFound, result.Error)
+        c.JSON(http.StatusNotFound, gin.H{"error": result.Error.Error()})
+        return
     }
-    return c.JSON(http.StatusOK, ship)
+    c.JSON(http.StatusOK, ship)
 }
 
 // Update a ship
-func UpdateShip(c echo.Context) error {
+func UpdateShip(c *gin.Context) {
     id := c.Param("id")
     var ship models.Ship
     if result := database.DB.First(&ship, id); result.Error != nil {
-        return c.JSON(http.StatusNotFound, result.Error)
+        c.JSON(http.StatusNotFound, gin.H{"error": result.Error.Error()})
+        return
     }
-    if err := c.Bind(&ship); err != nil {
-        return c.JSON(http.StatusBadRequest, err.Error)
+    if err := c.ShouldBindJSON(&ship); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
     }
     if result := database.DB.Save(&ship); result.Error != nil {
-        return c.JSON(http.StatusInternalServerError, result.Error)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+        return
     }
-    return c.JSON(http.StatusOK, ship)
+    c.JSON(http.StatusOK, ship)
 }
 
 // Delete a ship
-func DeleteShip(c echo.Context) error {
+func DeleteShip(c *gin.Context) {
     id := c.Param("id")
     if result := database.DB.Delete(&models.Ship{}, id); result.Error != nil {
-        return c.JSON(http.StatusInternalServerError, result.Error)
+        c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+        return
     }
-    return c.NoContent(http.StatusNoContent)
+    c.Status(http.StatusNoContent)
 }

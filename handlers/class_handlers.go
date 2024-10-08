@@ -2,63 +2,77 @@ package handlers
 
 import (
     "net/http"
-    "github.com/labstack/echo/v4"
+    "github.com/gin-gonic/gin"
     "GOstarted/models"
-    "GOstarted/database" // Import your database package
+    "GOstarted/database"
 )
 
-// Get all ticket classes
-func GetTicketClasses(c echo.Context) error {
+// GetTicketClasses retrieves all ticket classes
+func GetTicketClasses(c *gin.Context) {
     var ticketClasses []models.TicketClass
-    if result := database.DB.Find(&ticketClasses); result.Error != nil { // Use database.DB
-        return c.JSON(http.StatusInternalServerError, result.Error)
+    result := database.DB.Find(&ticketClasses)
+    if result.Error != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+        return
     }
-    return c.JSON(http.StatusOK, ticketClasses)
+    c.JSON(http.StatusOK, ticketClasses)
 }
 
-// Create a ticket class
-func CreateTicketClass(c echo.Context) error {
-    ticketClass := new(models.TicketClass)
-    if err := c.Bind(ticketClass); err != nil {
-        return c.JSON(http.StatusBadRequest, err.Error())
+// CreateTicketClass adds a new ticket class
+func CreateTicketClass(c *gin.Context) {
+    var ticketClass models.TicketClass
+    if err := c.ShouldBindJSON(&ticketClass); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
     }
-    if result := database.DB.Create(ticketClass); result.Error != nil { // Use database.DB
-        return c.JSON(http.StatusInternalServerError, result.Error)
+    result := database.DB.Create(&ticketClass)
+    if result.Error != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+        return
     }
-    return c.JSON(http.StatusCreated, ticketClass)
+    c.JSON(http.StatusCreated, ticketClass)
 }
 
-// Get a specific ticket class by ID
-func GetTicketClass(c echo.Context) error {
+// GetTicketClassByID retrieves a ticket class by ID
+func GetTicketClassByID(c *gin.Context) {
     id := c.Param("id")
     var ticketClass models.TicketClass
-    if result := database.DB.First(&ticketClass, id); result.Error != nil { // Use database.DB
-        return c.JSON(http.StatusNotFound, result.Error)
+    result := database.DB.First(&ticketClass, id)
+    if result.Error != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": result.Error.Error()})
+        return
     }
-    return c.JSON(http.StatusOK, ticketClass)
+    c.JSON(http.StatusOK, ticketClass)
 }
 
-// Update a ticket class
-func UpdateTicketClass(c echo.Context) error {
+// UpdateTicketClass modifies an existing ticket class by ID
+func UpdateTicketClass(c *gin.Context) {
     id := c.Param("id")
     var ticketClass models.TicketClass
-    if result := database.DB.First(&ticketClass, id); result.Error != nil { // Use database.DB
-        return c.JSON(http.StatusNotFound, result.Error)
+    result := database.DB.First(&ticketClass, id)
+    if result.Error != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": result.Error.Error()})
+        return
     }
-    if err := c.Bind(&ticketClass); err != nil {
-        return c.JSON(http.StatusBadRequest, err.Error())
+    if err := c.ShouldBindJSON(&ticketClass); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
     }
-    if result := database.DB.Save(&ticketClass); result.Error != nil { // Use database.DB
-        return c.JSON(http.StatusInternalServerError, result.Error)
+    result = database.DB.Save(&ticketClass)
+    if result.Error != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+        return
     }
-    return c.JSON(http.StatusOK, ticketClass)
+    c.JSON(http.StatusOK, ticketClass)
 }
 
-// Delete a ticket class
-func DeleteTicketClass(c echo.Context) error {
+// DeleteTicketClass removes a ticket class by ID
+func DeleteTicketClass(c *gin.Context) {
     id := c.Param("id")
-    if result := database.DB.Delete(&models.TicketClass{}, id); result.Error != nil { // Use database.DB
-        return c.JSON(http.StatusInternalServerError, result.Error)
+    result := database.DB.Delete(&models.TicketClass{}, id)
+    if result.Error != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": result.Error.Error()})
+        return
     }
-    return c.NoContent(http.StatusNoContent)
+    c.Status(http.StatusNoContent)
 }

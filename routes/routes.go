@@ -1,42 +1,45 @@
 package routes
 
 import (
-    
     "net/http"
     "GOstarted/handlers"
-    "github.com/labstack/echo/v4"
+    "github.com/gin-gonic/gin"
 )
 
-func SetupRoutes(e *echo.Echo) {
+func SetupRoutes(r *gin.Engine) {
 
-    e.GET("/", func(c echo.Context) error {
-        return c.String(http.StatusOK, "Hello, Echo and PostgreSQL!")
+    r.GET("/", func(c *gin.Context) {
+        c.String(http.StatusOK, "Hello, Gin and PostgreSQL!")
     })
+
     // User endpoints
-    e.GET("/users", handlers.GetUsers)
-    e.POST("/users", handlers.CreateUser)
-    e.GET("/users/:id", handlers.GetUserByID)
-    e.PUT("/users/:id", handlers.UpdateUser)
-    e.DELETE("/users/:id", handlers.DeleteUser)
-    
-    e.GET("/ships", handlers.GetShips)
-    e.POST("/ships", handlers.CreateShip)
-    e.PUT("/ships/:id", handlers.UpdateShip)
-    e.DELETE("/ships/:id", handlers.DeleteShip)
+    r.GET("/users", handlers.GetUsers)
+    r.POST("/users", handlers.CreateUser)
+    r.GET("/users/:id", handlers.GetUserByID)
+    r.PUT("/users/:id", handlers.UpdateUser)
+    r.DELETE("/users/:id", handlers.DeleteUser)
 
-    e.GET("/harbors", handlers.GetHarbors)
-    e.POST("/harbors", handlers.CreateHarbor)
-    e.PUT("/harbors/:id", handlers.UpdateHarbor)
-    e.DELETE("/harbors/:id", handlers.DeleteHarbor)
+    // Ship endpoints
+    r.GET("/ships", handlers.GetShips)
+    r.POST("/ships", handlers.CreateShip)
+    r.PUT("/ships/:id", handlers.UpdateShip)
+    r.DELETE("/ships/:id", handlers.DeleteShip)
 
-    // Routes for Tickets
-    e.GET("/tickets", handlers.GetTickets)
-    e.POST("/tickets", handlers.CreateTicket)
-    e.PUT("/tickets/:id", handlers.UpdateTicket)
-    e.DELETE("/tickets/:id", handlers.DeleteTicket)
+    // Harbor endpoints
+    r.GET("/harbors", handlers.GetHarbors)
+    r.POST("/harbors", handlers.CreateHarbor)
+    r.PUT("/harbors/:id", handlers.UpdateHarbor)
+    r.DELETE("/harbors/:id", handlers.DeleteHarbor)
 
-    e.GET("/ticketclasses", handlers.GetTicketClasses)
-    e.POST("/ticketclasses", handlers.CreateTicketClass)
-    e.PUT("/ticketclasses/:id", handlers.UpdateTicketClass)
-    e.DELETE("/ticketclasses/:id", handlers.DeleteTicketClass)
+    // Ticket endpoints
+    r.GET("/tickets", handlers.GetTickets)
+    r.POST("/tickets", handlers.CreateTicket)
+    r.PUT("/tickets/:id", handlers.UpdateTicket)
+    r.DELETE("/tickets/:id", handlers.DeleteTicket)
+
+    // Ticket Class endpoints
+    r.GET("/ticketclasses", handlers.GetTicketClasses)
+    r.POST("/ticketclasses", handlers.CreateTicketClass)
+    r.PUT("/ticketclasses/:id", handlers.UpdateTicketClass)
+    r.DELETE("/ticketclasses/:id", handlers.DeleteTicketClass)
 }

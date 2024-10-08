@@ -2,59 +2,71 @@ package handlers
 
 import (
     "net/http"
-    "github.com/labstack/echo/v4"
+    "github.com/gin-gonic/gin"
     "GOstarted/models"
     "GOstarted/database"
 )
 
 // GetUsers retrieves all users
-func GetUsers(c echo.Context) error {
+func GetUsers(c *gin.Context) {
     var users []models.User
     if err := database.DB.Find(&users).Error; err != nil {
-        return c.JSON(http.StatusInternalServerError, err.Error())
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
     }
-    return c.JSON(http.StatusOK, users)
+    c.JSON(http.StatusOK, users)
 }
 
 // CreateUser adds a new user
-func CreateUser(c echo.Context) error {
+func CreateUser(c *gin.Context) {
     user := models.User{}
-    if err := c.Bind(&user); err != nil {
-        return c.JSON(http.StatusBadRequest, err.Error())
+    if err := c.ShouldBindJSON(&user); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
     }
-    database.DB.Create(&user)
-    return c.JSON(http.StatusCreated, user)
+    if result := database.DB.Create(&user); result.Error != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+        return
+    }
+    c.JSON(http.StatusCreated, user)
 }
 
 // GetUserByID retrieves a user by ID
-func GetUserByID(c echo.Context) error {
+func GetUserByID(c *gin.Context) {
     id := c.Param("id")
     var user models.User
     if err := database.DB.First(&user, id).Error; err != nil {
-        return c.JSON(http.StatusNotFound, err.Error())
+        c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+        return
     }
-    return c.JSON(http.StatusOK, user)
+    c.JSON(http.StatusOK, user)
 }
 
 // UpdateUser modifies an existing user by ID
-func UpdateUser(c echo.Context) error {
+func UpdateUser(c *gin.Context) {
     id := c.Param("id")
     var user models.User
     if err := database.DB.First(&user, id).Error; err != nil {
-        return c.JSON(http.StatusNotFound, err.Error())
+        c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+        return
     }
-    if err := c.Bind(&user); err != nil {
-        return c.JSON(http.StatusBadRequest, err.Error())
+    if err := c.ShouldBindJSON(&user); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
     }
-    database.DB.Save(&user)
-    return c.JSON(http.StatusOK, user)
+    if result := database.DB.Save(&user); result.Error != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+        return
+    }
+    c.JSON(http.StatusOK, user)
 }
 
 // DeleteUser removes a user by ID
-func DeleteUser(c echo.Context) error {
+func DeleteUser(c *gin.Context) {
     id := c.Param("id")
-    if err := database.DB.Delete(&models.User{}, id).Error; err != nil {
-        return c.JSON(http.StatusNotFound, err.Error())
+    if result := database.DB.Delete(&models.User{}, id); result.Error != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": result.Error.Error()})
+        return
     }
-    return c.NoContent(http.StatusNoContent)
+    c.Status(http.StatusNoContent)
 }
