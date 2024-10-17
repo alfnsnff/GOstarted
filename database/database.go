@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"gorm.io/gorm"
-	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"GOstarted/models"
 )
@@ -16,13 +15,6 @@ var DB *gorm.DB
 // Connect initializes the database connection
 func Connect() {
 	var err error
-
-	if os.Getenv("ENV") == "development" {
-		err = godotenv.Load()
-		if err != nil {
-			log.Fatal("Error loading .env file")
-		}
-	}
 
 	// Prepare the DSN based on environment variables
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable",
